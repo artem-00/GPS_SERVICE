@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class GpsApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(GpsApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(GpsApplication.class, args);
+    }
 
 }
