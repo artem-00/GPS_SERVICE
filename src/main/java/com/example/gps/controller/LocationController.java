@@ -3,6 +3,8 @@ package com.example.gps.controller;
 import com.example.gps.entity.HistoryEntity;
 import com.example.gps.entity.LocationEntity;
 import com.example.gps.entity.UserEntity;
+import com.example.gps.exception.LocationNotFoundException;
+import com.example.gps.exception.UserNotFoundException;
 import com.example.gps.model.LocationInfo;
 import com.example.gps.service.LocationService;
 import com.example.gps.repository.HistoryRepository;
@@ -60,6 +62,37 @@ public class LocationController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity getLocationById(@RequestParam Long id) {
+        try {
+            return ResponseEntity.ok(locationService.getLocation(id));
+        }catch (LocationNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }catch (Exception e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка)");
+        }
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity deleteLocation(@PathVariable Long id){
+        try {
+            return ResponseEntity.ok(locationService.deleteLocationById(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Произошла ошибка)");
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity updateLocation(@PathVariable Long id, @RequestBody LocationEntity updatedLocation) {
+        try {
+            locationService.updateLocation(id, updatedLocation);
+            return ResponseEntity.ok("Location updated");
+        } catch (LocationNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error occurred while updating location");
+        }
+    }
 
 }
 

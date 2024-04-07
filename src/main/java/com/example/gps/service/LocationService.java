@@ -2,6 +2,7 @@ package com.example.gps.service;
 
 import com.example.gps.entity.LocationEntity;
 import com.example.gps.entity.UserEntity;
+import com.example.gps.exception.LocationNotFoundException;
 import com.example.gps.model.Location;
 import com.example.gps.repository.LocationRepository;
 import com.example.gps.repository.UserRepository;
@@ -29,4 +30,29 @@ public class LocationService {
         }
         return null;
     }
+
+    public Location getLocation(Long id) throws LocationNotFoundException {
+        LocationEntity location = locationRepo.findById(id).get();
+        if (location == null){
+            throw new LocationNotFoundException("Location not found");
+        }
+        return Location.toModel(location);
+    }
+
+    public Long deleteLocationById(Long id){
+        locationRepo.deleteById(id);
+        return id;
+    }
+
+    public void updateLocation(Long id, LocationEntity updatedLocation) throws LocationNotFoundException {
+        LocationEntity location = locationRepo.findById(id).orElse(null);
+        if (location == null) {
+            throw new LocationNotFoundException("Location not found");
+        }
+        location.setCountry(updatedLocation.getCountry());
+        location.setCity(updatedLocation.getCity());
+
+        locationRepo.save(location);
+    }
+
 }

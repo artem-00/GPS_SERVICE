@@ -16,36 +16,56 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping
+    @PostMapping("/add")
     public ResponseEntity registration(@RequestBody UserEntity user){
         try {
             userService.registration(user);
-            return ResponseEntity.ok("Save");
-        }catch (UserAlreadyExistsException e) {
+            return ResponseEntity.ok("User saved");
+        } catch (UserAlreadyExistsException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        }catch (Exception e) {
-            return ResponseEntity.badRequest().body("Произошла ошибка)");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("ERROR)");
         }
     }
 
-
-    @GetMapping
-    public ResponseEntity getOneUsers(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity getUserById(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(userService.getOne(id));
-        }catch (UserNotFoundException e) {
+        } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
-        }catch (Exception e) {
-            return ResponseEntity.badRequest().body("Произошла ошибка)");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("ERROR)");
         }
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity deleteUser(@PathVariable Long id){
+    @GetMapping
+    public ResponseEntity getAllUsers() {
+        try {
+            return ResponseEntity.ok(userService.getAll());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("ERROR)");
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity updateUser(@PathVariable Long id, @RequestBody UserEntity user) {
+        try {
+            userService.updateUser(id, user);
+            return ResponseEntity.ok("User updated");
+        } catch (UserNotFoundException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("ERROR)");
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteUser(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(userService.deleteUserById(id));
-        }catch (Exception e) {
-            return ResponseEntity.badRequest().body("Произошла ошибка)");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("ERROR)");
         }
     }
 }
