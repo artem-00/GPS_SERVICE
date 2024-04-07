@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/location")
@@ -28,8 +30,8 @@ public class LocationController {
     private final String IPINFO_API_URL = "https://ipinfo.io/%s/json";
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @PostMapping
-    public ResponseEntity foundLocation(@RequestParam Long userId, @RequestParam String ip) {
+    @PostMapping("/userId/{userId}/ip/{ip}")
+    public ResponseEntity foundLocation(@PathVariable Long userId, @PathVariable String ip) {
         try {
             String apiUrl = String.format(IPINFO_API_URL, ip);
             LocationInfo locationInfo = restTemplate.getForObject(apiUrl, LocationInfo.class);
@@ -70,6 +72,27 @@ public class LocationController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }catch (Exception e) {
             return ResponseEntity.badRequest().body("Произошла ошибка)");
+        }
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity getUserLocations(@PathVariable Long userId) {
+        try {
+            List<LocationInfo> locations = locationService.getUserLocations(userId);
+
+            // Преобразуем список LocationEntity в список LocationInfo
+            List<LocationInfo> locationInfos = locations.stream()
+                    .map(location -> {
+                        LocationInfo locationInfo = new LocationInfo();
+                        locationInfo.setCountry(location.getCountry());
+                        locationInfo.setCity(location.getCity());
+                        return locationInfo;
+                    })
+                    .collect(Collectors.toList());
+
+            return ResponseEntity.ok(locationInfos);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error occurred while fetching user locations");
         }
     }
 
