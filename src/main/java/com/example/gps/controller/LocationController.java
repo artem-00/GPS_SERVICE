@@ -1,62 +1,72 @@
 package com.example.gps.controller;
 
-import com.example.gps.entity.LocationEntity;
-import com.example.gps.entity.UserEntity;
-import com.example.gps.exception.LocationNotFoundException;
-import com.example.gps.model.Location;
-import com.example.gps.model.LocationInfo;
+import com.example.gps.entity.History;
+import com.example.gps.entity.Location;
 import com.example.gps.service.LocationService;
+import com.example.gps.entity.User;
+import com.example.gps.exception.LocationNotFoundException;
+import com.example.gps.DTO.LocationDTO;
+import  com.example.gps.repository.HistoryRepository;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.Date;
 
 @RestController
 @RequestMapping("/location")
 public class LocationController {
 
     private final LocationService locationService;
-
+    private HistoryRepository historyRepo;
     private final String ipinfoApiURL = "https://ipinfo.io/%s/json";
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public LocationController(LocationService locationService) {
+    public LocationController(LocationService locationService, HistoryRepository historyRepo) {
         this.locationService = locationService;
+        this.historyRepo = historyRepo;
     }
 
     @PostMapping("/userId/{userId}/ip/{ip}")
     public ResponseEntity<String> foundLocation(@PathVariable Long userId, @PathVariable String ip) {
         try {
             String apiUrl = String.format(ipinfoApiURL, ip);
+            LocationDTO locationInfo = restTemplate.getForObject(apiUrl, LocationDTO.class);
 
-            // 1. Проверяем, что полученный объект не равен null
-            LocationInfo locationInfo = restTemplate.getForObject(apiUrl, LocationInfo.class);
-            if (locationInfo != null) {
-                LocationEntity locationEntity = new LocationEntity();
-                locationEntity.setCountry(locationInfo.getCountry());
-                locationEntity.setCity(locationInfo.getCity());
-                UserEntity userEntity = new UserEntity();
-                userEntity.setId(userId);
-                locationEntity.setUser(userEntity);
-                // Сохраняем местоположение в базу данных
-                LocationEntity savedLocation = locationService.saveLocation(locationEntity);
+            Location locationEntity = new Location();
+            locationEntity.setCountry(locationInfo.getCountry());
+            locationEntity.setCity(locationInfo.getCity());
 
-                // 2. Возвращаем сообщение об успешном сохранении местоположения
-                return ResponseEntity.ok("Местоположение сохранено");
-            } else {
-                // 3. Возвращаем сообщение об ошибке, если locationInfo равен null
-                return ResponseEntity.badRequest().body("Ошибка получения информации о местоположении");
-            }
+            User userEntity = new User();
+            userEntity.setId(userId);
+
+            locationEntity.setUser(userEntity);
+
+            // Сохраняем местоположение в базу данных
+            Location savedLocation = locationService.saveLocation(locationEntity);
+
+            // Создаем запись истории
+            History history = new History();
+            history.setIdUser(userId);
+            history.setIdLocation(savedLocation.getId());
+            history.setIp(ip);
+            history.setRequestDateTime(new Date());
+
+            // Сохраняем запись истории в базу данных
+            historyRepo.save(history);
+
+            return ResponseEntity.ok("Location saved successfully.");
         } catch (Exception e) {
-            // 4. Возвращаем сообщение об ошибке при возникновении исключения
-            return ResponseEntity.badRequest().body("Произошла ошибка при обработке запроса");
+            return ResponseEntity.badRequest().body("Error occurred while saving location.");
         }
     }
 
+
     @GetMapping("/{id}")
-    public ResponseEntity<Location> getLocationById(@PathVariable Long id) {
+    public ResponseEntity<LocationDTO> getLocationById(@PathVariable Long id) {
         try {
-            Location location = locationService.getLocation(id);
+            LocationDTO location = locationService.getLocation(id);
             return ResponseEntity.ok(location);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
@@ -74,7 +84,7 @@ public class LocationController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateLocation(@PathVariable Long id, @RequestBody LocationEntity updatedLocation) {
+    public ResponseEntity<String> updateLocation(@PathVariable Long id, @RequestBody Location updatedLocation) {
         try {
             locationService.updateLocation(id, updatedLocation);
             return ResponseEntity.ok("Location updated");

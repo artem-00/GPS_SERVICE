@@ -3,7 +3,7 @@ package com.example.gps.entity;
 import jakarta.persistence.*;
 
 @Entity
-public class LocationEntity {
+public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -11,9 +11,9 @@ public class LocationEntity {
     private String city;
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private UserEntity user;
+    private User user;
 
-    public LocationEntity() {
+    public Location() {
         // Пустой конструктор требуется для JPA-сущности
     }
 
@@ -41,11 +41,11 @@ public class LocationEntity {
         this.city = city;
     }
 
-    public UserEntity getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(UserEntity user) {
+    public void setUser(User user) {
         this.user = user;
     }
 }

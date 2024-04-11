@@ -1,10 +1,9 @@
 package com.example.gps.controller;
 
-import com.example.gps.entity.UserEntity;
+import com.example.gps.entity.User;
 import com.example.gps.exception.UserAlreadyExistsException;
 import com.example.gps.exception.UserNotFoundException;
-import com.example.gps.model.User;
-import com.example.gps.repository.UserRepository;
+import com.example.gps.DTO.UserDTO;
 import com.example.gps.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/add")
-    public ResponseEntity<String> registration(@RequestBody UserEntity user) {
+    public ResponseEntity<String> registration(@RequestBody User user) {
         try {
             userService.registration(user);
             return ResponseEntity.ok("User saved");
@@ -32,9 +31,9 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         try {
-            User user = userService.getOne(id);
+            UserDTO user = userService.getOne(id);
             return ResponseEntity.ok(user);
         } catch (UserNotFoundException e) {
             return ResponseEntity.badRequest().body(null);
@@ -44,9 +43,9 @@ public class UserController {
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
         try {
-            List<User> users = (List<User>) userService.getAll();
+            List<UserDTO> users = (List<UserDTO>) userService.getAll();
             return ResponseEntity.ok(users);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
@@ -54,7 +53,7 @@ public class UserController {
     }
 
     @PutMapping("/updated/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody UserEntity user) {
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody User user) {
         try {
             userService.updateUser(id, user);
             return ResponseEntity.ok("User updated");

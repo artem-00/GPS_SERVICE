@@ -1,20 +1,20 @@
-package com.example.gps.model;
+package com.example.gps.DTO;
 
-import com.example.gps.entity.LocationEntity;
+import com.example.gps.entity.Location;
 
-public class Location {
+public class LocationDTO {
     private Long id;
     private String country;
     private String city;
 
-    public static Location toModel(LocationEntity entity){
-        Location model = new Location();
+    public static LocationDTO toModel(Location entity){
+        LocationDTO model = new LocationDTO();
         model.setId(entity.getId());
         model.setCountry(entity.getCountry());
         model.setCity(entity.getCity());
         return model;
     }
-    public Location() {
+    public LocationDTO() {
         // Пустой конструктор требуется для JPA-сущности
 
     }

@@ -1,13 +1,13 @@
 package com.example.gps.repository;
 
-import com.example.gps.entity.LocationEntity;
+import com.example.gps.entity.Location;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
 
-public interface LocationRepository extends CrudRepository<LocationEntity, Long> {
+public interface LocationRepository extends CrudRepository<Location, Long> {
 
-    @Query("SELECT l FROM LocationEntity l WHERE l.user.id = :userId")
-    List<LocationEntity> findAllByUserId(@Param("userId") Long userId);
+    @Query("SELECT l FROM Location l WHERE l.user.id = :userId")
+    List<Location> findAllByUserId(@Param("userId") Long userId);
 }

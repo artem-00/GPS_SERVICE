@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.util.Date;
 
 @Entity
-public class HistoryEntity {
+public class History {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -14,7 +14,7 @@ public class HistoryEntity {
     private String ip;
     private Date requestDateTime;
 
-    public HistoryEntity(){
+    public History(){
         // Пустой конструктор требуется для JPA-сущности
     }
 

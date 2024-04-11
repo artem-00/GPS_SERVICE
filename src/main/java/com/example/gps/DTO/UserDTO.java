@@ -1,24 +1,24 @@
-package com.example.gps.model;
+package com.example.gps.DTO;
 
-import com.example.gps.entity.UserEntity;
+import com.example.gps.entity.User;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class User {
+public class UserDTO {
     private Long id;
     private String login;
-    private List<Location> locations;
+    private List<LocationDTO> locations;
 
-    public static User toModel(UserEntity entity){
-        User model = new User();
+    public static UserDTO toModel(User entity){
+        UserDTO model = new UserDTO();
         model.setId(entity.getId());
         model.setLogin(entity.getLogin());
-        model.setLocations(entity.getLocation().stream().map(Location::toModel).collect(Collectors.toList()));
+        model.setLocations(entity.getLocation().stream().map(LocationDTO::toModel).collect(Collectors.toList()));
         return model;
     }
 
-    private User() {
+    private UserDTO() {
         // Пустой конструктор требуется для JPA-сущности
     }
 
@@ -38,11 +38,11 @@ public class User {
         this.login = login;
     }
 
-    public List<Location> getLocations() {
+    public List<LocationDTO> getLocations() {
         return locations;
     }
 
-    public void setLocations(List<Location> locations) {
+    public void setLocations(List<LocationDTO> locations) {
         this.locations = locations;
     }
 }

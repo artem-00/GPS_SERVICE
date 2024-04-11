@@ -5,17 +5,17 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-public class UserEntity {
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String login;
     private String password;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
-    private List<LocationEntity> location;
+    private List<Location> location;
 
-    public UserEntity() {
-        // Пустой конструктор требуется для JPA-сущности
+    public User() {
+
     }
     public Long getId() {
         return id;
@@ -41,11 +41,11 @@ public class UserEntity {
         this.password = password;
     }
 
-    public List<LocationEntity> getLocation() {
+    public List<Location> getLocation() {
         return location;
     }
 
-    public void setLocation(List<LocationEntity> location) {
+    public void setLocation(List<Location> location) {
         this.location = location;
     }
 }

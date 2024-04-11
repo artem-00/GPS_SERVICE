@@ -1,35 +1,39 @@
 package com.example.gps.service;
 
-import com.example.gps.entity.LocationEntity;
+import com.example.gps.entity.Location;
 import com.example.gps.exception.LocationNotFoundException;
-import com.example.gps.model.Location;
+import com.example.gps.DTO.LocationDTO;
 import com.example.gps.repository.LocationRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LocationService {
 
+
     private LocationRepository locationRepo;
 
-    public LocationEntity saveLocation(LocationEntity locationEntity) {
+    public LocationService(LocationRepository locationRepo) {
+        this.locationRepo = locationRepo;
+    }
+
+    public Location saveLocation(Location locationEntity) {
         return locationRepo.save(locationEntity);
     }
 
-    public Location getLocation(Long id) throws LocationNotFoundException {
-        LocationEntity location = locationRepo.findById(id).orElse(null);
+    public LocationDTO getLocation(Long id) throws LocationNotFoundException {
+        Location location = locationRepo.findById(id).orElse(null);
         if (location == null){
             throw new LocationNotFoundException("Location not found");
         }
-        return Location.toModel(location);
+        return LocationDTO.toModel(location);
     }
 
-    public Long deleteLocationById(Long id){
+    public void deleteLocationById(Long id){
         locationRepo.deleteById(id);
-        return id;
     }
 
-    public void updateLocation(Long id, LocationEntity updatedLocation) throws LocationNotFoundException {
-        LocationEntity location = locationRepo.findById(id).orElse(null);
+    public void updateLocation(Long id, Location updatedLocation) throws LocationNotFoundException {
+        Location location = locationRepo.findById(id).orElse(null);
         if (location == null) {
             throw new LocationNotFoundException("Location not found");
         }
