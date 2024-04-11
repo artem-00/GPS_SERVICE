@@ -1,5 +1,6 @@
 package com.example.gps.service;
 
+import com.example.gps.cache.UserCache;
 import com.example.gps.entity.UserEntity;
 import com.example.gps.exception.UserAlreadyExistsException;
 import com.example.gps.exception.UserNotFoundException;
@@ -17,20 +18,28 @@ public class UserService {
     @Autowired
     private UserRepository userRepo;
 
+    @Autowired
+    private UserCache userCache; // Внедряем кэш пользователей
+
     public UserEntity registration(UserEntity user) throws UserAlreadyExistsException {
         if (userRepo.findByLogin(user.getLogin()) != null) {
             throw new UserAlreadyExistsException("User already exists");
         }
-        return userRepo.save(user);
+        UserEntity savedUser = userRepo.save(user);
+        userCache.addUserToCache(savedUser.getId(), savedUser); // Добавляем пользователя в кэш
+        return savedUser;
     }
 
     public User getOne(Long id) throws UserNotFoundException {
-        UserEntity user = userRepo.findById(id).orElse(null);
-        if (user == null) {
-            throw new UserNotFoundException("User not found");
+        if (userCache.containsUser(id)) {
+            UserEntity cachedUser = userCache.getUserFromCache(id);
+            return User.toModel(cachedUser);
         }
+        UserEntity user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+        userCache.addUserToCache(id, user); // Добавляем пользователя в кэш
         return User.toModel(user);
     }
+
 
     public Iterable<User> getAll() {
         Iterable<UserEntity> users = userRepo.findAll();
