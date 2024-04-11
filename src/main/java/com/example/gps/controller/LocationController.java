@@ -1,20 +1,15 @@
 package com.example.gps.controller;
 
-import com.example.gps.entity.HistoryEntity;
 import com.example.gps.entity.LocationEntity;
 import com.example.gps.entity.UserEntity;
 import com.example.gps.exception.LocationNotFoundException;
 import com.example.gps.model.Location;
 import com.example.gps.model.LocationInfo;
 import com.example.gps.service.LocationService;
-import com.example.gps.repository.HistoryRepository;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Date;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/location")
@@ -22,9 +17,7 @@ public class LocationController {
 
     private final LocationService locationService;
 
-    private HistoryRepository historyRepository;
-
-    private final String IpinfoApiURL = "https://ipinfo.io/%s/json";
+    private final String ipinfoApiURL = "https://ipinfo.io/%s/json";
     private final RestTemplate restTemplate = new RestTemplate();
 
     public LocationController(LocationService locationService) {
@@ -32,9 +25,9 @@ public class LocationController {
     }
 
     @PostMapping("/userId/{userId}/ip/{ip}")
-    public final ResponseEntity<String> foundLocation(@PathVariable Long userId, @PathVariable String ip) {
+    public ResponseEntity<String> foundLocation(@PathVariable Long userId, @PathVariable String ip) {
         try {
-            String apiUrl = String.format(IpinfoApiURL, ip);
+            String apiUrl = String.format(ipinfoApiURL, ip);
 
             // 1. Проверяем, что полученный объект не равен null
             LocationInfo locationInfo = restTemplate.getForObject(apiUrl, LocationInfo.class);
