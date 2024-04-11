@@ -8,57 +8,55 @@ import com.example.gps.model.Location;
 import com.example.gps.model.LocationInfo;
 import com.example.gps.service.LocationService;
 import com.example.gps.repository.HistoryRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/location")
 public class LocationController {
 
-    @Autowired
-    private LocationService locationService;
+    private final LocationService locationService;
 
-    @Autowired
     private HistoryRepository historyRepository;
 
-    private final String IPINFO_API_URL = "https://ipinfo.io/%s/json";
+    private final String IpinfoApiURL = "https://ipinfo.io/%s/json";
     private final RestTemplate restTemplate = new RestTemplate();
 
+    public LocationController(LocationService locationService) {
+        this.locationService = locationService;
+    }
+
     @PostMapping("/userId/{userId}/ip/{ip}")
-    public ResponseEntity<String> foundLocation(@PathVariable Long userId, @PathVariable String ip) {
+    public final ResponseEntity<String> foundLocation(@PathVariable Long userId, @PathVariable String ip) {
         try {
-            String apiUrl = String.format(IPINFO_API_URL, ip);
+            String apiUrl = String.format(IpinfoApiURL, ip);
+
+            // 1. Проверяем, что полученный объект не равен null
             LocationInfo locationInfo = restTemplate.getForObject(apiUrl, LocationInfo.class);
+            if (locationInfo != null) {
+                LocationEntity locationEntity = new LocationEntity();
+                locationEntity.setCountry(locationInfo.getCountry());
+                locationEntity.setCity(locationInfo.getCity());
+                UserEntity userEntity = new UserEntity();
+                userEntity.setId(userId);
+                locationEntity.setUser(userEntity);
+                // Сохраняем местоположение в базу данных
+                LocationEntity savedLocation = locationService.saveLocation(locationEntity);
 
-            LocationEntity locationEntity = new LocationEntity();
-            locationEntity.setCountry(locationInfo.getCountry());
-            locationEntity.setCity(locationInfo.getCity());
-
-            UserEntity userEntity = new UserEntity();
-            userEntity.setId(userId);
-
-            locationEntity.setUser(userEntity);
-
-            // Сохраняем местоположение в базу данных
-            LocationEntity savedLocation = locationService.saveLocation(locationEntity);
-
-            // Создаем запись истории
-            HistoryEntity history = new HistoryEntity();
-            history.setIdUser(userId);
-            history.setIdLocation(savedLocation.getId());
-            history.setIp(ip);
-            history.setRequestDateTime(new Date());
-
-            // Сохраняем запись истории в базу данных
-            historyRepository.save(history);
-
-            return ResponseEntity.ok("Location saved successfully.");
+                // 2. Возвращаем сообщение об успешном сохранении местоположения
+                return ResponseEntity.ok("Местоположение сохранено");
+            } else {
+                // 3. Возвращаем сообщение об ошибке, если locationInfo равен null
+                return ResponseEntity.badRequest().body("Ошибка получения информации о местоположении");
+            }
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error occurred while saving location.");
+            // 4. Возвращаем сообщение об ошибке при возникновении исключения
+            return ResponseEntity.badRequest().body("Произошла ошибка при обработке запроса");
         }
     }
 
