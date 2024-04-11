@@ -14,7 +14,7 @@ public class LocationEntity {
     private UserEntity user;
 
     public LocationEntity() {
-
+        // Пустой конструктор требуется для JPA-сущности
     }
 
     public Long getId() {

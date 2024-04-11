@@ -5,6 +5,7 @@ public class LocationInfo {
     private String city;
 
     public LocationInfo() {
+        // Пустой конструктор требуется для JPA-сущности
     }
 
     public String getCountry() {

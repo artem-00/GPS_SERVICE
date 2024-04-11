@@ -15,6 +15,8 @@ public class Location {
         return model;
     }
     public Location() {
+        // Пустой конструктор требуется для JPA-сущности
+
     }
 
     public Long getId() {

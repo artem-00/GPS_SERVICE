@@ -15,7 +15,7 @@ public class HistoryEntity {
     private Date requestDateTime;
 
     public HistoryEntity(){
-
+        // Пустой конструктор требуется для JPA-сущности
     }
 
     public Long getId() {

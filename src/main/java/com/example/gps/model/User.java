@@ -19,6 +19,7 @@ public class User {
     }
 
     private User() {
+        // Пустой конструктор требуется для JPA-сущности
     }
 
     public Long getId() {
