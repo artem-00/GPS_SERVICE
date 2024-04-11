@@ -74,27 +74,6 @@ public class LocationController {
         }
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<LocationInfo>> getUserLocations(@PathVariable Long userId) {
-        try {
-            List<LocationInfo> locations = locationService.getUserLocations(userId);
-
-            // Преобразуем список LocationEntity в список LocationInfo
-            List<LocationInfo> locationInfos = locations.stream()
-                    .map(location -> {
-                        LocationInfo locationInfo = new LocationInfo();
-                        locationInfo.setCountry(location.getCountry());
-                        locationInfo.setCity(location.getCity());
-                        return locationInfo;
-                    })
-                    .collect(Collectors.toList());
-
-            return ResponseEntity.ok(locationInfos);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
-    }
-
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteLocation(@PathVariable Long id) {
         try {
