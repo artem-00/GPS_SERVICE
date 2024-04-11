@@ -21,18 +21,6 @@ public class LocationService {
         return locationRepo.save(locationEntity);
     }
 
-    public List<LocationInfo> getUserLocations(Long userId) {
-        List<LocationEntity> locations = locationRepo.findAllByUserId(userId);
-        return locations.stream()
-                .map(locationEntity -> {
-                    LocationInfo locationInfo = new LocationInfo();
-                    locationInfo.setCountry(locationEntity.getCountry());
-                    locationInfo.setCity(locationEntity.getCity());
-                    return locationInfo;
-                })
-                .collect(Collectors.toList());
-    }
-
     public Location getLocation(Long id) throws LocationNotFoundException {
         LocationEntity location = locationRepo.findById(id).orElse(null);
         if (location == null){

@@ -17,9 +17,7 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepo;
-
-    @Autowired
-    private UserCache userCache; // Внедряем кэш пользователей
+    private UserCache userCache;
 
     public UserEntity registration(UserEntity user) throws UserAlreadyExistsException {
         if (userRepo.findByLogin(user.getLogin()) != null) {
