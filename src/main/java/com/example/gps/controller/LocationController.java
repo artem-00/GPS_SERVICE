@@ -4,7 +4,7 @@ import com.example.gps.entity.HistoryEntity;
 import com.example.gps.entity.LocationEntity;
 import com.example.gps.entity.UserEntity;
 import com.example.gps.exception.LocationNotFoundException;
-import com.example.gps.exception.UserNotFoundException;
+import com.example.gps.model.Location;
 import com.example.gps.model.LocationInfo;
 import com.example.gps.service.LocationService;
 import com.example.gps.repository.HistoryRepository;
@@ -27,16 +27,17 @@ public class LocationController {
     @Autowired
     private HistoryRepository historyRepository;
 
-    private final String IPINFO_API_URL = "https://ipinfo.io/%s/json";
     private final RestTemplate restTemplate = new RestTemplate();
 
     @PostMapping("/userId/{userId}/ip/{ip}")
-    public ResponseEntity foundLocation(@PathVariable Long userId, @PathVariable String ip) {
+    public ResponseEntity<String> foundLocation(@PathVariable Long userId, @PathVariable String ip) {
         try {
+            String IPINFO_API_URL = "https://ipinfo.io/%s/json";
             String apiUrl = String.format(IPINFO_API_URL, ip);
             LocationInfo locationInfo = restTemplate.getForObject(apiUrl, LocationInfo.class);
 
             LocationEntity locationEntity = new LocationEntity();
+            assert locationInfo != null;
             locationEntity.setCountry(locationInfo.getCountry());
             locationEntity.setCity(locationInfo.getCity());
 
@@ -64,19 +65,18 @@ public class LocationController {
         }
     }
 
-    @GetMapping
-    public ResponseEntity getLocationById(@RequestParam Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Location> getLocationById(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(locationService.getLocation(id));
-        }catch (LocationNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }catch (Exception e) {
-            return ResponseEntity.badRequest().body("Произошла ошибка)");
+            Location location = locationService.getLocation(id);
+            return ResponseEntity.ok(location);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity getUserLocations(@PathVariable Long userId) {
+    public ResponseEntity<List<LocationInfo>> getUserLocations(@PathVariable Long userId) {
         try {
             List<LocationInfo> locations = locationService.getUserLocations(userId);
 
@@ -92,28 +92,29 @@ public class LocationController {
 
             return ResponseEntity.ok(locationInfos);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error occurred while fetching user locations");
+            return ResponseEntity.badRequest().body(null);
         }
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity deleteLocation(@PathVariable Long id){
+    public ResponseEntity<String> deleteLocation(@PathVariable Long id) {
         try {
-            return ResponseEntity.ok(locationService.deleteLocationById(id));
+            locationService.deleteLocationById(id);
+            return ResponseEntity.ok("Location deleted");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Произошла ошибка)");
+            return ResponseEntity.badRequest().body("Произошла ошибка");
         }
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity updateLocation(@PathVariable Long id, @RequestBody LocationEntity updatedLocation) {
+    public ResponseEntity<String> updateLocation(@PathVariable Long id, @RequestBody LocationEntity updatedLocation) {
         try {
             locationService.updateLocation(id, updatedLocation);
             return ResponseEntity.ok("Location updated");
         } catch (LocationNotFoundException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error occurred while updating location");
+            return ResponseEntity.badRequest().body("Произошла ошибка при обновлении местоположения");
         }
     }
 
