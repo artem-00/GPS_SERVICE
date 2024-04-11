@@ -3,18 +3,12 @@ package com.example.gps.service;
 import com.example.gps.entity.LocationEntity;
 import com.example.gps.exception.LocationNotFoundException;
 import com.example.gps.model.Location;
-import com.example.gps.model.LocationInfo;
 import com.example.gps.repository.LocationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class LocationService {
 
-    @Autowired
     private LocationRepository locationRepo;
 
     public LocationEntity saveLocation(LocationEntity locationEntity) {
