@@ -27,17 +27,16 @@ public class LocationController {
     @Autowired
     private HistoryRepository historyRepository;
 
+    private final String IPINFO_API_URL = "https://ipinfo.io/%s/json";
     private final RestTemplate restTemplate = new RestTemplate();
 
     @PostMapping("/userId/{userId}/ip/{ip}")
     public ResponseEntity<String> foundLocation(@PathVariable Long userId, @PathVariable String ip) {
         try {
-            String IPINFO_API_URL = "https://ipinfo.io/%s/json";
             String apiUrl = String.format(IPINFO_API_URL, ip);
             LocationInfo locationInfo = restTemplate.getForObject(apiUrl, LocationInfo.class);
 
             LocationEntity locationEntity = new LocationEntity();
-            assert locationInfo != null;
             locationEntity.setCountry(locationInfo.getCountry());
             locationEntity.setCity(locationInfo.getCity());
 
