@@ -1,6 +1,6 @@
 package com.example.gps.service;
 
-import com.example.gps.cache.UserCache;
+//import com.example.gps.cache.UserCache;
 import com.example.gps.entity.User;
 import com.example.gps.exception.UserAlreadyExistsException;
 import com.example.gps.exception.UserNotFoundException;
@@ -17,15 +17,16 @@ public class UserService {
 
     @Autowired
     private UserRepository userRepo;
-    private UserCache userCache;
 
     public User registration(User user) throws UserAlreadyExistsException {
+        if(userRepo.findByLogin(user.getLogin()) != null)
+
+        {throw new UserAlreadyExistsException("User already exists");}
+
         if (userRepo.findByLogin(user.getLogin()) != null) {
             throw new UserAlreadyExistsException("User already exists");
         }
-        User savedUser = userRepo.save(user);
-        //userCache.addUserToCache(savedUser.getId(), savedUser); // Добавляем пользователя в кэш
-        return savedUser;
+        return userRepo.save(user);
     }
 
     public UserDTO getOne(Long id) throws UserNotFoundException {
@@ -51,7 +52,6 @@ public class UserService {
         }
         user.setLogin(updatedUser.getLogin());
         user.setPassword(updatedUser.getPassword());
-        // Update other fields as needed
         userRepo.save(user);
     }
 

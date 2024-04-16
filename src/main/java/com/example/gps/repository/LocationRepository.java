@@ -7,7 +7,6 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface LocationRepository extends CrudRepository<Location, Long> {
-
     @Query("SELECT l FROM Location l WHERE l.user.id = :userId")
     List<Location> findAllByUserId(@Param("userId") Long userId);
 }

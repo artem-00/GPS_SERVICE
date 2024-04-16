@@ -8,6 +8,7 @@ import com.example.gps.exception.LocationNotFoundException;
 import com.example.gps.DTO.LocationDTO;
 import  com.example.gps.repository.HistoryRepository;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -17,45 +18,40 @@ import java.util.Date;
 @RestController
 @RequestMapping("/location")
 public class LocationController {
-
-    private final LocationService locationService;
-    private HistoryRepository historyRepo;
+    @Autowired
+    private LocationService locationService;
+    @Autowired
+    private  HistoryRepository historyRepo;
     private final String ipinfoApiURL = "https://ipinfo.io/%s/json";
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public LocationController(LocationService locationService, HistoryRepository historyRepo) {
-        this.locationService = locationService;
-        this.historyRepo = historyRepo;
+    public LocationController() {
     }
 
     @PostMapping("/userId/{userId}/ip/{ip}")
     public ResponseEntity<String> foundLocation(@PathVariable Long userId, @PathVariable String ip) {
         try {
             String apiUrl = String.format(ipinfoApiURL, ip);
-            LocationDTO locationInfo = restTemplate.getForObject(apiUrl, LocationDTO.class);
+            LocationDTO locationDTO = restTemplate.getForObject(apiUrl, LocationDTO.class);
 
-            Location locationEntity = new Location();
-            locationEntity.setCountry(locationInfo.getCountry());
-            locationEntity.setCity(locationInfo.getCity());
+            Location location = new Location();
+            assert locationDTO != null;
+            location.setCountry(locationDTO.getCountry());
+            location.setCity(locationDTO.getCity());
 
-            User userEntity = new User();
-            userEntity.setId(userId);
-
-            locationEntity.setUser(userEntity);
-
+            User user = new User();
+            user.setId(userId);
+            location.setUser(user);
             // Сохраняем местоположение в базу данных
-            Location savedLocation = locationService.saveLocation(locationEntity);
-
+            Location savedLocation = locationService.saveLocation(location);
             // Создаем запись истории
             History history = new History();
             history.setIdUser(userId);
             history.setIdLocation(savedLocation.getId());
             history.setIp(ip);
             history.setRequestDateTime(new Date());
-
             // Сохраняем запись истории в базу данных
             historyRepo.save(history);
-
             return ResponseEntity.ok("Location saved successfully.");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error occurred while saving location.");

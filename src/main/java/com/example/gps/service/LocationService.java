@@ -4,17 +4,18 @@ import com.example.gps.entity.Location;
 import com.example.gps.exception.LocationNotFoundException;
 import com.example.gps.DTO.LocationDTO;
 import com.example.gps.repository.LocationRepository;
+import com.example.gps.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LocationService {
 
-
+    @Autowired
     private LocationRepository locationRepo;
 
-    public LocationService(LocationRepository locationRepo) {
-        this.locationRepo = locationRepo;
-    }
+    @Autowired
+    private UserRepository userRepo;
 
     public Location saveLocation(Location locationEntity) {
         return locationRepo.save(locationEntity);
