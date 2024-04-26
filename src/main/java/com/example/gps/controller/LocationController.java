@@ -90,6 +90,5 @@ public class LocationController {
             return ResponseEntity.badRequest().body("Произошла ошибка при обновлении местоположения");
         }
     }
-
 }
 
