@@ -19,7 +19,7 @@ public class UserDTO {
     }
 
     private UserDTO() {
-
+        // Пустой конструктор требуется для JPA-сущности
     }
 
     public Long getId() {
