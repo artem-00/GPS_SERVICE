@@ -1,12 +1,17 @@
 package com.example.gps.service;
 
+import com.example.gps.DTO.UserDTO;
 import com.example.gps.entity.Location;
+import com.example.gps.entity.User;
 import com.example.gps.exception.LocationNotFoundException;
 import com.example.gps.DTO.LocationDTO;
 import com.example.gps.repository.LocationRepository;
 import com.example.gps.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class LocationService {
@@ -42,5 +47,14 @@ public class LocationService {
         location.setCity(updatedLocation.getCity());
 
         locationRepo.save(location);
+    }
+    //добавил
+    public Iterable<LocationDTO> getAllLocations() {
+        Iterable<Location> locations = locationRepo.findAll();
+        List<LocationDTO> locationDTOs = new ArrayList<>();
+        for (Location location : locations) {
+            locationDTOs.add(LocationDTO.toModel(location));
+        }
+        return locationDTOs;
     }
 }

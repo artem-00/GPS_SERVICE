@@ -7,6 +7,7 @@ import com.example.gps.entity.User;
 import com.example.gps.exception.LocationNotFoundException;
 import com.example.gps.DTO.LocationDTO;
 import  com.example.gps.repository.HistoryRepository;
+import com.example.gps.cache.LocationCache;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/location")
@@ -22,6 +26,8 @@ public class LocationController {
     private LocationService locationService;
     @Autowired
     private  HistoryRepository historyRepo;
+    @Autowired
+    private LocationCache locationCache;
     private final String ipinfoApiURL = "https://ipinfo.io/%s/json";
     private final RestTemplate restTemplate = new RestTemplate();
 
@@ -30,7 +36,6 @@ public class LocationController {
 
     @PostMapping("/userId/{userId}/ip/{ip}")
     public ResponseEntity<String> foundLocation(@PathVariable Long userId, @PathVariable String ip) {
-        try {
             String apiUrl = String.format(ipinfoApiURL, ip);
             LocationDTO locationDTO = restTemplate.getForObject(apiUrl, LocationDTO.class);
 
@@ -42,23 +47,19 @@ public class LocationController {
             User user = new User();
             user.setId(userId);
             location.setUser(user);
-            // Сохраняем местоположение в базу данных
+
+            //добавил
+            Location cachedLocation = locationCache.getFromCache(location);
+            if (cachedLocation != null) {
+                return ResponseEntity.ok("Location found in cache: " + cachedLocation);
+            }
+
             Location savedLocation = locationService.saveLocation(location);
-            // Создаем запись истории
-            History history = new History();
-            history.setIdUser(userId);
-            history.setIdLocation(savedLocation.getId());
-            history.setIp(ip);
-            history.setRequestDateTime(new Date());
-            // Сохраняем запись истории в базу данных
-            historyRepo.save(history);
+            locationCache.addToCache(savedLocation);
+
+
             return ResponseEntity.ok("Location saved successfully.");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error occurred while saving location.");
-        }
     }
-
-
     @GetMapping("/{id}")
     public ResponseEntity<LocationDTO> getLocationById(@PathVariable Long id) {
         try {
@@ -89,6 +90,20 @@ public class LocationController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Произошла ошибка при обновлении местоположения");
         }
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<List<LocationDTO>> getAllLocations() {
+        try {
+            List<LocationDTO> locations = (List<LocationDTO>) locationService.getAllLocations();
+            return ResponseEntity.ok(locations);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+    @GetMapping("/cache")
+    public void printCache() {
+        locationCache.logCache();
     }
 }
 

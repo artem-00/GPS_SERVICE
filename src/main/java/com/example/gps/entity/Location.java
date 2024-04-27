@@ -2,6 +2,8 @@ package com.example.gps.entity;
 
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 public class Location {
     @Id
@@ -47,5 +49,25 @@ public class Location {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    @Override
+    public String toString() {
+        return "id = " + id +
+                ", city = " + city +
+                ", country = " + country ;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Location location = (Location) o;
+        return Objects.equals(country, location.country) && Objects.equals(city, location.city) && Objects.equals(user, location.user);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(country, city, user);
     }
 }
