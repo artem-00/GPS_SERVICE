@@ -17,11 +17,4 @@ public class EndpointActionLogger {
         logger.info("Deleting location with id: {}", id);
     }
 
-    public void logAddUser(String message) {
-        logger.info("Adding user: {}", message);
-    }
-
-    public void logDeleteUser(Long id) {
-        logger.info("Deleting user: {}", id);
-    }
 }

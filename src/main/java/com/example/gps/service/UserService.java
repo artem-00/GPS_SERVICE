@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -17,11 +19,22 @@ public class UserService {
     @Autowired
     private UserRepository userRepo;
 
+    public List<User> registration(List<User> users) throws UserAlreadyExistsException {
+        return users.stream()
+                .map(user -> {
+                    try {
+                        return registration(user);
+                    } catch (UserAlreadyExistsException e) {
+                        // Обработка исключения, если пользователь уже существует
+                        return null; // или какой-то другой способ обработки
+                    }
+                })
+                .filter(Objects::nonNull) // Отфильтровываем пользователей, которые были успешно зарегистрированы
+                .collect(Collectors.toList()); // Собираем результаты в список
+    }
+
+
     public User registration(User user) throws UserAlreadyExistsException {
-        if(userRepo.findByLogin(user.getLogin()) != null)
-
-        {throw new UserAlreadyExistsException("User already exists");}
-
         if (userRepo.findByLogin(user.getLogin()) != null) {
             throw new UserAlreadyExistsException("User already exists");
         }

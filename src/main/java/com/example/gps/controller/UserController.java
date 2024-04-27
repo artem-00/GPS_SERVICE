@@ -26,8 +26,19 @@ public class UserController {
     public ResponseEntity<String> registration(@RequestBody User user) {
         try {
             userService.registration(user);
-            endpointActionLogger.logAddUser(user.toString());
             return ResponseEntity.ok("User saved");
+        } catch (UserAlreadyExistsException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("ERROR for post");
+        }
+    }
+
+    @PostMapping("bulk/add")
+    public ResponseEntity<String> registration(@RequestBody List<User> users) {
+        try {
+            userService.registration(users);
+            return ResponseEntity.ok("Users saved");
         } catch (UserAlreadyExistsException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (Exception e) {
@@ -73,7 +84,6 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         try {
             userService.deleteUserById(id);
-            endpointActionLogger.logDeleteUser(id);
             return ResponseEntity.ok("User deleted");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("ERROR for delete");
