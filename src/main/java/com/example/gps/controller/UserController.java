@@ -1,6 +1,7 @@
 package com.example.gps.controller;
 
 import com.example.gps.entity.User;
+import com.example.gps.exception.EndpointActionLogger;
 import com.example.gps.exception.UserAlreadyExistsException;
 import com.example.gps.exception.UserNotFoundException;
 import com.example.gps.DTO.UserDTO;
@@ -18,10 +19,14 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private EndpointActionLogger endpointActionLogger;
+
     @PostMapping("/add")
     public ResponseEntity<String> registration(@RequestBody User user) {
         try {
             userService.registration(user);
+            endpointActionLogger.logAddUser(user.toString());
             return ResponseEntity.ok("User saved");
         } catch (UserAlreadyExistsException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -68,6 +73,7 @@ public class UserController {
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         try {
             userService.deleteUserById(id);
+            endpointActionLogger.logDeleteUser(id);
             return ResponseEntity.ok("User deleted");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("ERROR for delete");
