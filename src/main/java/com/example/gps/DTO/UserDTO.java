@@ -10,11 +10,17 @@ public class UserDTO {
     private String login;
     private List<LocationDTO> locations;
 
-    public static UserDTO toModel(User entity){
+    public static UserDTO toModel(User entity) {
         UserDTO model = new UserDTO();
         model.setId(entity.getId());
         model.setLogin(entity.getLogin());
-        model.setLocations(entity.getLocation().stream().map(LocationDTO::toModel).collect(Collectors.toList()));
+
+        // Проверяем, не является ли список местоположений пользователя null
+        if (entity.getLocation() != null) {
+            // Если список местоположений не null, выполняем необходимую обработку
+            model.setLocations(entity.getLocation().stream().map(LocationDTO::toModel).collect(Collectors.toList()));
+        }
+
         return model;
     }
 

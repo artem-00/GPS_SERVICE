@@ -5,13 +5,16 @@ import com.example.gps.exception.UserAlreadyExistsException;
 import com.example.gps.exception.UserNotFoundException;
 import com.example.gps.DTO.UserDTO;
 import com.example.gps.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class UserService {
@@ -42,34 +45,54 @@ public class UserService {
     }
 
     public UserDTO getOne(Long id) throws UserNotFoundException {
-        User user = userRepo.findById(id).get();
-        if (user == null){
+        Optional<User> optionalUser = userRepo.findById(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            return UserDTO.toModel(user);
+        } else {
             throw new UserNotFoundException("User not found");
         }
-        return UserDTO.toModel(user);
     }
 
 
-    public Iterable<UserDTO> getAll() {
+    public Iterable<UserDTO> getAll() throws UserNotFoundException {
         Iterable<User> users = userRepo.findAll();
-        List<UserDTO> userList = new ArrayList<>();
-        users.forEach(userEntity -> userList.add(UserDTO.toModel(userEntity)));
+
+        // Проверяем, есть ли пользователи
+        if (users == null || !users.iterator().hasNext()) {
+            throw new UserNotFoundException("No users found");
+        }
+
+        // Создаем список UserDTO из пользователей
+        List<UserDTO> userList = StreamSupport.stream(users.spliterator(), false)
+                .map(UserDTO::toModel)
+                .collect(Collectors.toList());
+
         return userList;
     }
 
-    public void updateUser(Long id, User updatedUser) throws UserNotFoundException {
-        User user = userRepo.findById(id).orElse(null);
-        if (user == null) {
-            throw new UserNotFoundException("User not found");
+    @Transactional
+    public User updateUser(Long id, User updatedUser) throws UserNotFoundException {
+        if (updatedUser == null) {
+            throw new IllegalArgumentException("Updated user cannot be null");
         }
+
+        User user = userRepo.findById(id).orElseThrow(() -> new UserNotFoundException("User not found"));
+
         user.setLogin(updatedUser.getLogin());
         user.setPassword(updatedUser.getPassword());
-        userRepo.save(user);
+
+        return userRepo.save(user);
     }
 
-    public Long deleteUserById(Long id) {
-        userRepo.deleteById(id);
-        return id;
+    public Long deleteUserById(Long id) throws UserNotFoundException {
+        Optional<User> userOptional = userRepo.findById(id);
+        if (userOptional.isPresent()) {
+            userRepo.deleteById(id);
+            return id;
+        } else {
+            throw new UserNotFoundException("User with id " + id + " not found");
+        }
     }
 }
 
