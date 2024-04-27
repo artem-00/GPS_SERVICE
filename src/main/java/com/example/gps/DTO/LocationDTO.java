@@ -1,7 +1,6 @@
 package com.example.gps.DTO;
 
 import com.example.gps.entity.Location;
-import com.example.gps.entity.User;
 
 public class LocationDTO {
     private Long id;

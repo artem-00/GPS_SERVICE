@@ -24,7 +24,7 @@ public class UserDTO {
         return model;
     }
 
-    private UserDTO() {
+    UserDTO() {
         // Пустой конструктор требуется для JPA-сущности
     }
 
