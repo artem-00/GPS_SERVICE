@@ -48,7 +48,7 @@ public class LocationService {
 
         locationRepo.save(location);
     }
-    //добавил
+
     public Iterable<LocationDTO> getAllLocations() {
         Iterable<Location> locations = locationRepo.findAll();
         List<LocationDTO> locationDTOs = new ArrayList<>();
