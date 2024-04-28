@@ -14,10 +14,11 @@ import org.springframework.web.context.request.WebRequest;
 public class ControllerExceptionHandler {
     private final Logger logger = LoggerFactory.getLogger(ControllerExceptionHandler.class);
 
+
     @ExceptionHandler({HttpClientErrorException.class})
     public ResponseEntity<String> handleHttpClientErrorException(HttpClientErrorException ex, WebRequest request) {
-        logger.error("error 400");
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error 400(bad request)");
+        logger.error("Error 400");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error 400(bad request)");
     }
 
     @ExceptionHandler({HttpRequestMethodNotSupportedException.class})
