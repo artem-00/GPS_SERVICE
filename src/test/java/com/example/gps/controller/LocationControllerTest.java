@@ -180,4 +180,27 @@ class LocationControllerTest {
         // Verify that locationCache.logCache() method is called
         verify(locationCache, times(1)).logCache();
     }
+
+    @Test
+    void testFoundLocation_CachedLocation() {
+        // Mock data
+        Long userId = 1L;
+        String ip = "127.0.0.1";
+        Location cachedLocation = new Location(); // Your cached location object
+
+        // Mock behavior
+        when(locationCache.getFromCache(any(Location.class))).thenReturn(cachedLocation);
+
+        // Perform the request
+        ResponseEntity<String> response = locationController.foundLocation(userId, ip);
+
+        // Verify the response
+        assertEquals("Location found in cache: " + cachedLocation.toString(), response.getBody());
+
+        // Verify interactions
+        verify(locationCache, times(1)).getFromCache(any(Location.class));
+        verify(locationService, never()).saveLocation(any(Location.class));
+        verify(locationCache, never()).addToCache(any(Location.class));
+        verify(endpointActionLogger, never()).logAddLocation(anyString());
+    }
 }
