@@ -12,6 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +30,6 @@ class UserControllerTest {
     public UserControllerTest() {
         MockitoAnnotations.initMocks(this);
     }
-
 
     @Test
     void getUserById() throws UserNotFoundException {
@@ -54,5 +54,17 @@ class UserControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(userDTOList, response.getBody());
         verify(userService, times(1)).getAll();
+    }
+
+    @Test
+    void registration_Success() throws UserAlreadyExistsException {
+        User user = new User();
+        ResponseEntity<String> expectedResponse = ResponseEntity.ok("User saved");
+
+        // No need to mock void methods, just verify that it is called
+        ResponseEntity<String> response = userController.registration(user);
+
+        assertEquals(expectedResponse, response);
+        verify(userService, times(1)).registration(user);
     }
 }
