@@ -19,8 +19,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private EndpointActionLogger endpointActionLogger;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping("/add")
     public ResponseEntity<String> registration(@RequestBody User user) {

@@ -10,11 +10,14 @@ import java.util.List;
 @Component
 public class LocationCache {
     private static final int CACHE_SIZE = 5;
-    private List<Location> cache;
+    private final List<Location> cache;
     private final Logger logger = LoggerFactory.getLogger(LocationCache.class);
 
     public LocationCache() {
         cache = new ArrayList<>();
+    }
+    public int getCacheSize() {
+        return cache.size();
     }
 
     public void addToCache(Location location) {
