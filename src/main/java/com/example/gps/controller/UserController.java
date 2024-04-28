@@ -24,70 +24,38 @@ public class UserController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> registration(@RequestBody User user) {
-        try {
+    public ResponseEntity<String> registration(@RequestBody User user) throws UserAlreadyExistsException {
             userService.registration(user);
             return ResponseEntity.ok("User saved");
-        } catch (UserAlreadyExistsException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("ERROR for post");
-        }
     }
 
     @PostMapping("bulk/add")
-    public ResponseEntity<String> registration(@RequestBody List<User> users) {
-        try {
-            userService.registration(users);
-            return ResponseEntity.ok("Users saved");
-        } catch (UserAlreadyExistsException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("ERROR for post");
-        }
+    public ResponseEntity<String> registration(@RequestBody List<User> users) throws UserAlreadyExistsException {
+        userService.registration(users);
+        return ResponseEntity.ok("Users saved");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        try {
-            UserDTO user = userService.getOne(id);
-            return ResponseEntity.ok(user);
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.badRequest().body(null);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) throws UserNotFoundException {
+        UserDTO user = userService.getOne(id);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
-        try {
-            List<UserDTO> users = (List<UserDTO>) userService.getAll();
-            return ResponseEntity.ok(users);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
-        }
+    public ResponseEntity<List<UserDTO>> getAllUsers() throws UserNotFoundException {
+        List<UserDTO> users = (List<UserDTO>) userService.getAll();
+        return ResponseEntity.ok(users);
     }
 
     @PutMapping("/updated/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody User user) {
-        try {
-            userService.updateUser(id, user);
-            return ResponseEntity.ok("User updated");
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("ERROR for put");
-        }
+    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody User user) throws UserNotFoundException {
+        userService.updateUser(id, user);
+        return ResponseEntity.ok("User updated");
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        try {
-            userService.deleteUserById(id);
-            return ResponseEntity.ok("User deleted");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("ERROR for delete");
-        }
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) throws UserNotFoundException {
+        userService.deleteUserById(id);
+        return ResponseEntity.ok("User deleted");
     }
 }
