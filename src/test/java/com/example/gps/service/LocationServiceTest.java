@@ -49,7 +49,6 @@ class LocationServiceTest {
 
     @Test
     void getLocation_LocationFound() throws LocationNotFoundException {
-        // Arrange
         long locationId = 1L;
         Location location = new Location();
         location.setId(locationId);
@@ -58,21 +57,17 @@ class LocationServiceTest {
 
         when(locationRepository.findById(locationId)).thenReturn(Optional.of(location));
 
-        // Act
         LocationDTO locationDTO = locationService.getLocation(locationId);
 
-        // Assert
         assertEquals(location.getCountry(), locationDTO.getCountry());
         assertEquals(location.getCity(), locationDTO.getCity());
     }
 
     @Test
     void getLocation_LocationNotFound() {
-        // Arrange
         long locationId = 1L;
         when(locationRepository.findById(locationId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(LocationNotFoundException.class, () -> {
             locationService.getLocation(locationId);
         });
@@ -80,19 +75,15 @@ class LocationServiceTest {
 
     @Test
     void deleteLocationById() {
-        // Arrange
         Long locationId = 1L;
 
-        // Act
         locationService.deleteLocationById(locationId);
 
-        // Assert
         verify(locationRepository, times(1)).deleteById(locationId);
     }
 
     @Test
     void updateLocation_LocationExists() throws LocationNotFoundException {
-        // Arrange
         Long locationId = 1L;
         Location location = new Location();
         location.setId(locationId);
@@ -105,10 +96,8 @@ class LocationServiceTest {
 
         when(locationRepository.findById(locationId)).thenReturn(Optional.of(location));
 
-        // Act
         locationService.updateLocation(locationId, updatedLocation);
 
-        // Assert
         verify(locationRepository, times(1)).findById(locationId);
         verify(locationRepository, times(1)).save(location);
         assertEquals(updatedLocation.getCountry(), location.getCountry());
@@ -117,7 +106,6 @@ class LocationServiceTest {
 
     @Test
     void updateLocation_LocationNotFound() {
-        // Arrange
         Long locationId = 1L;
         Location updatedLocation = new Location();
         updatedLocation.setCountry("UpdatedCountry");
@@ -125,7 +113,6 @@ class LocationServiceTest {
 
         when(locationRepository.findById(locationId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(LocationNotFoundException.class, () -> {
             locationService.updateLocation(locationId, updatedLocation);
         });
@@ -133,7 +120,6 @@ class LocationServiceTest {
 
     @Test
     void getAllLocations() {
-        // Arrange
         Location location1 = new Location();
         location1.setCountry("Country1");
         location1.setCity("City1");
@@ -144,10 +130,8 @@ class LocationServiceTest {
 
         when(locationRepository.findAll()).thenReturn(Arrays.asList(location1, location2));
 
-        // Act
         Iterable<LocationDTO> result = locationService.getAllLocations();
 
-        // Assert
         List<LocationDTO> resultList = (List<LocationDTO>) result;
         assertEquals(2, resultList.size());
         assertEquals("Country1", resultList.get(0).getCountry());

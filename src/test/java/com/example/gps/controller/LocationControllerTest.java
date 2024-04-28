@@ -68,7 +68,6 @@ class LocationControllerTest {
 
         ResponseEntity<String> expectedResponse = ResponseEntity.ok("Location deleted");
 
-        // Mock the deletion operation to succeed
         doNothing().when(locationService).deleteLocationById(locationId);
 
         ResponseEntity<String> response = locationController.deleteLocation(locationId);
@@ -82,7 +81,6 @@ class LocationControllerTest {
     void deleteLocation_LocationNotFound() throws LocationNotFoundException {
         Long locationId = 1L;
 
-        // Mock the deletion operation to throw a RuntimeException (an unchecked exception)
         doThrow(new RuntimeException("Location not found")).when(locationService).deleteLocationById(locationId);
 
         ResponseEntity<String> response = locationController.deleteLocation(locationId);
@@ -90,7 +88,6 @@ class LocationControllerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("Произошла ошибка", response.getBody());
         verify(locationService, times(1)).deleteLocationById(locationId);
-        // Ensure that endpointActionLogger.logDeleteLocation is not called in case of exception
         verify(endpointActionLogger, never()).logDeleteLocation(locationId);
     }
 
@@ -101,7 +98,6 @@ class LocationControllerTest {
         Location updatedLocation = new Location();
         ResponseEntity<String> expectedResponse = ResponseEntity.ok("Location updated");
 
-        // Mock the update operation to succeed
         doNothing().when(locationService).updateLocation(locationId, updatedLocation);
 
         ResponseEntity<String> response = locationController.updateLocation(locationId, updatedLocation);
@@ -115,7 +111,6 @@ class LocationControllerTest {
         Long locationId = 1L;
         Location updatedLocation = new Location();
 
-        // Mock the update operation to throw LocationNotFoundException
         doThrow(new LocationNotFoundException("Location not found")).when(locationService).updateLocation(locationId, updatedLocation);
 
         ResponseEntity<String> response = locationController.updateLocation(locationId, updatedLocation);
@@ -130,7 +125,6 @@ class LocationControllerTest {
         Long locationId = 1L;
         Location updatedLocation = new Location();
 
-        // Mock the update operation to throw a generic Exception
         doThrow(new RuntimeException("Other exception")).when(locationService).updateLocation(locationId, updatedLocation);
 
         ResponseEntity<String> response = locationController.updateLocation(locationId, updatedLocation);
@@ -146,13 +140,10 @@ class LocationControllerTest {
         expectedLocations.add(new LocationDTO());
         expectedLocations.add(new LocationDTO());
 
-        // Mock the service call to return a list of locations
         when(locationService.getAllLocations()).thenReturn(expectedLocations);
 
-        // Call the controller method
         ResponseEntity<List<LocationDTO>> response = locationController.getAllLocations();
 
-        // Verify the response
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedLocations, response.getBody());
         verify(locationService, times(1)).getAllLocations();
@@ -160,13 +151,10 @@ class LocationControllerTest {
 
     @Test
     void getAllLocations_Exception() {
-        // Mock the service call to throw an exception
         when(locationService.getAllLocations()).thenThrow(new RuntimeException("An error occurred"));
 
-        // Call the controller method
         ResponseEntity<List<LocationDTO>> response = locationController.getAllLocations();
 
-        // Verify the response
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNull(response.getBody());
         verify(locationService, times(1)).getAllLocations();
@@ -174,30 +162,23 @@ class LocationControllerTest {
 
     @Test
     void printCache() {
-        // Call the controller method
         locationController.printCache();
 
-        // Verify that locationCache.logCache() method is called
         verify(locationCache, times(1)).logCache();
     }
 
     @Test
     void testFoundLocation_CachedLocation() {
-        // Mock data
         Long userId = 1L;
         String ip = "127.0.0.1";
-        Location cachedLocation = new Location(); // Your cached location object
+        Location cachedLocation = new Location();
 
-        // Mock behavior
         when(locationCache.getFromCache(any(Location.class))).thenReturn(cachedLocation);
 
-        // Perform the request
         ResponseEntity<String> response = locationController.foundLocation(userId, ip);
 
-        // Verify the response
         assertEquals("Location found in cache: " + cachedLocation.toString(), response.getBody());
 
-        // Verify interactions
         verify(locationCache, times(1)).getFromCache(any(Location.class));
         verify(locationService, never()).saveLocation(any(Location.class));
         verify(locationCache, never()).addToCache(any(Location.class));

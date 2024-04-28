@@ -33,17 +33,14 @@ class UserServiceTest {
 
     @Test
     void registration_singleUserSuccess() throws UserAlreadyExistsException {
-        // Arrange
         User user = new User();
         user.setLogin("testUser");
 
         when(userRepo.findByLogin(user.getLogin())).thenReturn(null);
         when(userRepo.save(user)).thenReturn(user);
 
-        // Act
         User registeredUser = userService.registration(user);
 
-        // Assert
         assertEquals(user, registeredUser);
         verify(userRepo, times(1)).findByLogin(user.getLogin());
         verify(userRepo, times(1)).save(user);
@@ -51,17 +48,14 @@ class UserServiceTest {
 
     @Test
     void testRegistration_UserNotExists() throws UserAlreadyExistsException {
-        // Arrange
         User user = new User();
         user.setLogin("testUser");
 
         when(userRepo.findByLogin(user.getLogin())).thenReturn(null);
         when(userRepo.save(user)).thenReturn(user);
 
-        // Act
         User registeredUser = userService.registration(user);
 
-        // Assert
         assertEquals(user, registeredUser);
         verify(userRepo, times(1)).findByLogin(user.getLogin());
         verify(userRepo, times(1)).save(user);
@@ -69,13 +63,11 @@ class UserServiceTest {
 
     @Test
     void testRegistration_UserAlreadyExists() {
-        // Arrange
         User user = new User();
         user.setLogin("existingUser");
 
         when(userRepo.findByLogin(user.getLogin())).thenReturn(user);
 
-        // Act & Assert
         assertThrows(UserAlreadyExistsException.class, () -> {
             userService.registration(user);
         });
@@ -86,7 +78,6 @@ class UserServiceTest {
 
     @Test
     void testGetOne_UserExists() throws UserNotFoundException {
-        // Arrange
         Long userId = 1L;
         User user = new User();
         user.setId(userId);
@@ -94,10 +85,8 @@ class UserServiceTest {
 
         when(userRepo.findById(userId)).thenReturn(Optional.of(user));
 
-        // Act
         UserDTO userDTO = userService.getOne(userId);
 
-        // Assert
         assertEquals(userId, userDTO.getId());
         assertEquals(user.getLogin(), userDTO.getLogin());
         verify(userRepo, times(1)).findById(userId);
@@ -105,12 +94,10 @@ class UserServiceTest {
 
     @Test
     void testGetOne_UserNotFound() {
-        // Arrange
         Long userId = 1L;
 
         when(userRepo.findById(userId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(UserNotFoundException.class, () -> {
             userService.getOne(userId);
         });
@@ -120,10 +107,8 @@ class UserServiceTest {
 
     @Test
     void testGetAll_UserNotFoundException() {
-        // Arrange
         when(userRepository.findAll()).thenReturn(Collections.emptyList()); // Возвращаем пустой список пользователей
 
-        // Act & Assert
         assertThrows(UserNotFoundException.class, () -> {
             userService.getAll();
         });
@@ -131,7 +116,6 @@ class UserServiceTest {
 
     @Test
     void testUpdateUser_UserNotFound() {
-        // Arrange
         Long userId = 1L;
         String newLogin = "newLogin";
         String newPassword = "newPassword";
@@ -142,19 +126,15 @@ class UserServiceTest {
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(UserNotFoundException.class, () -> userService.updateUser(userId, updatedUser));
     }
 
     @Test
     void testDeleteUserById_UserNotFound() {
-        // Arrange
         Long userId = 1L;
 
-        // Stubbing the behavior of findById
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(UserNotFoundException.class, () -> {
             userService.deleteUserById(userId);
         });
