@@ -25,12 +25,12 @@ public class UserController {
 
     @PostMapping("/add")
     public ResponseEntity<String> registration(@RequestBody User user) throws UserAlreadyExistsException {
-            userService.registration(user);
-            return ResponseEntity.ok("User saved");
+        userService.registration(user);
+        return ResponseEntity.ok("User saved");
     }
 
     @PostMapping("bulk/add")
-    public ResponseEntity<String> registration(@RequestBody List<User> users) throws UserAlreadyExistsException {
+    public ResponseEntity<String> registrationManyUsers(@RequestBody List<User> users) throws UserAlreadyExistsException {
         userService.registration(users);
         return ResponseEntity.ok("Users saved");
     }

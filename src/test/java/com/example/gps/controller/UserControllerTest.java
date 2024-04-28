@@ -12,7 +12,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -61,10 +61,56 @@ class UserControllerTest {
         User user = new User();
         ResponseEntity<String> expectedResponse = ResponseEntity.ok("User saved");
 
-        // No need to mock void methods, just verify that it is called
         ResponseEntity<String> response = userController.registration(user);
 
         assertEquals(expectedResponse, response);
         verify(userService, times(1)).registration(user);
+    }
+
+    @Test
+    void registrationManyUsers_Success() throws UserAlreadyExistsException {
+        List<User> users = new ArrayList<>();
+        users.add(new User(/* данные первого пользователя */));
+        users.add(new User(/* данные второго пользователя */));
+
+        ResponseEntity<String> expectedResponse = ResponseEntity.ok("Users saved");
+
+        doReturn(null).when(userService).registration(users);
+
+        ResponseEntity<String> response = userController.registrationManyUsers(users);
+
+        assertEquals(expectedResponse, response);
+
+        verify(userService, times(1)).registration(users);
+    }
+
+
+    @Test
+    void testUpdateUser_Success() throws UserNotFoundException {
+        Long userId = 1L;
+        User updatedUser = new User(/* данные обновленного пользователя */);
+
+        ResponseEntity<String> expectedResponse = ResponseEntity.ok("User updated");
+        doReturn(null).when(userService).updateUser(userId, updatedUser);
+
+        ResponseEntity<String> response = userController.updateUser(userId, updatedUser);
+
+        assertEquals(expectedResponse, response);
+
+        verify(userService, times(1)).updateUser(userId, updatedUser);
+    }
+
+    @Test
+    void testDeleteUser_Success() throws UserNotFoundException {
+        Long userId = 1L;
+
+        ResponseEntity<String> expectedResponse = ResponseEntity.ok("User deleted");
+
+        doReturn(null).when(userService).deleteUserById(userId);
+        ResponseEntity<String> response = userController.deleteUser(userId);
+
+        assertEquals(expectedResponse, response);
+
+        verify(userService, times(1)).deleteUserById(userId);
     }
 }

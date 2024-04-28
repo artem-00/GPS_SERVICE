@@ -107,6 +107,5 @@ public class LocationController {
     public void printCache() {
         locationCache.logCache();
     }
-
 }
 
